@@ -11,29 +11,28 @@ namespace RedisAppendStreams.Test
         int _redisPort;
 
         RedisFixture _fx;
-        ConnectionMultiplexer _multiplexer;
-
+        IConnectionMultiplexer _redisMultiplexer;
+        
         protected IDatabase Redis { get; private set; }
         protected AppendStreamClient Client { get; private set; }
         
         public RedisTestsBase(RedisFixture fx)
         {
             _fx = fx;
-
             _dockerHost = "localhost";
             _redisPort = 6379;
         }
 
         async Task IAsyncLifetime.InitializeAsync()
         {
-            _multiplexer = await ConnectionMultiplexer.ConnectAsync($"{_dockerHost}:{_redisPort}");
-            Redis = _multiplexer.GetDatabase();
-            Client = new AppendStreamClient(Redis);
+            _redisMultiplexer = await ConnectionMultiplexer.ConnectAsync($"{_dockerHost}:{_redisPort}");
+            Client = new AppendStreamClient(_redisMultiplexer);
+            Redis = _redisMultiplexer.GetDatabase();
         }
         
         async Task IAsyncLifetime.DisposeAsync()
         {
-            _multiplexer.Dispose();
+            _redisMultiplexer.Dispose();
         }
 
     }

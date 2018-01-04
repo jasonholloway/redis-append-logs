@@ -1,27 +1,31 @@
 ﻿using StackExchange.Redis;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace RedisAppendStreams
 {
     public class AppendStreamClient
     {
-        IDatabase _db;
+        IConnectionMultiplexer _redis;
 
-        public AppendStreamClient(IDatabase db)
+        public AppendStreamClient(IConnectionMultiplexer redis)
         {
-            _db = db;
+            _redis = redis;
         }
 
         public async Task<string> Read(string key)
         {
-            var value = await _db.StringGetAsync(key);
+            var db = _redis.GetDatabase();
+            var value = await db.StringGetAsync(key);
             return value;
         }
 
         public async Task<AppendResult> Append(AppendStreamHandle handle, string val)
         {
-            var newOffset = (long)await _db.ScriptEvaluateAsync(luaAppend, new RedisKey[] { handle.Key }, new RedisValue[] { handle.Offset, val });
+            var db = _redis.GetDatabase();
 
+            var newOffset = (long)await db.ScriptEvaluateAsync(luaAppend, new RedisKey[] { handle.Key }, new RedisValue[] { handle.Offset, val });
+            
             if (newOffset < 0) return new AppendResult();
 
             return new AppendResult(handle.WithOffset(newOffset));            
@@ -41,7 +45,7 @@ namespace RedisAppendStreams
                 return -1
             end
         ";
-
+        
     }
 
 
