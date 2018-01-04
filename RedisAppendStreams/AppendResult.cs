@@ -17,7 +17,7 @@
             Next = null;
         }
 
-        public static implicit operator AppendStreamHandle(AppendResult result)
+        public static explicit operator AppendStreamHandle(AppendResult result)
             => result.Next.Value;
     }
 

@@ -16,4 +16,5 @@ namespace RedisAppendStreams.Test
             => Task.WhenAll(tasks);
 
     }
+
 }

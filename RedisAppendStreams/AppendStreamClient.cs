@@ -20,13 +20,28 @@ namespace RedisAppendStreams
 
         public async Task<AppendResult> Append(AppendStreamHandle handle, string val)
         {
-            var currString = (string)await _db.StringGetAsync(handle.Key);
-            if (currString != null && handle.Offset != currString.Length) return new AppendResult();
-            
-            var newLength = await _db.StringAppendAsync(handle.Key, val);
+            var newOffset = (long)await _db.ScriptEvaluateAsync(luaAppend, new RedisKey[] { handle.Key }, new RedisValue[] { handle.Offset, val });
 
-            return new AppendResult(handle.WithNewOffset(newLength));
+            if (newOffset < 0) return new AppendResult();
+
+            return new AppendResult(handle.WithOffset(newOffset));            
         }
+
+        const string luaAppend = @"
+            local stringKey = KEYS[1]
+            local appendage = ARGV[2]
+
+            local currOffset = tonumber(ARGV[1])
+            local currLength = redis.call(""STRLEN"", stringKey)
+
+            if currOffset == currLength then 
+                local newOffset = redis.call(""APPEND"", stringKey, appendage)
+                return newOffset
+            else
+                return -1
+            end
+        ";
+
     }
 
 

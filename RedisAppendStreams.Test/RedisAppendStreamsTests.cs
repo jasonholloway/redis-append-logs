@@ -1,14 +1,8 @@
-using Docker.DotNet;
-using Docker.DotNet.Models;
 using System;
 using System.Threading.Tasks;
 using Xunit;
 using LanguageExt;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Sockets;
-using StackExchange.Redis;
 using Shouldly;
 
 namespace RedisAppendStreams.Test
@@ -41,13 +35,43 @@ namespace RedisAppendStreams.Test
         public async Task Client_AppendsStrings()
         {
             var h = new AppendStreamHandle("blah");
-            h = await Client.Append(h, "12345");
-            h = await Client.Append(h, "6789");
+            h = await Client.Append(h, "12345").ExpectOK();
+            h = await Client.Append(h, "6789").ExpectOK();
 
             var val = (string)await Redis.StringGetAsync(h.Key);
             val.ShouldBe("123456789");
         }
-        
+
+
+
+        [Fact]
+        public async Task Client_Appends_ToExistingString()
+        {
+            await Redis.StringSetAsync("flap", "12345");
+            
+            var h = new AppendStreamHandle("flap", 5);            
+            h = await Client.Append(h, "6789").ExpectOK();
+
+            var val = (string)await Redis.StringGetAsync(h.Key);
+            val.ShouldBe("123456789");
+        }
+
+
+
+
+        [Fact]
+        public async Task Client_Appends_AndReadsStrings()
+        {
+            var h = new AppendStreamHandle("oof");
+            h = await Client.Append(h, "12345").ExpectOK();
+            h = await Client.Append(h, "6789").ExpectOK();
+
+            var result = await Client.Read(h.Key);
+            result.ShouldBe("123456789");
+        }
+
+        //handle without offset can read
+        //but cant write
 
         [Fact]
         public async Task Client_FailsToAppend_WhenOffsetIsGazumped()
@@ -66,7 +90,7 @@ namespace RedisAppendStreams.Test
         public async Task OnlyOneAppenderCanWin_GivenCompetition()
         {
             var h = new AppendStreamHandle("piffle");
-            h = await Client.Append(h, "abcdef");
+            h = await Client.Append(h, "abcdef").ExpectOK();
             
             var results = await Enumerable.Range(0, 20)
                                 .Map(async _ => {

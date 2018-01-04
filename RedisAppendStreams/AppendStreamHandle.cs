@@ -11,7 +11,7 @@
             Offset = offset;
         }
 
-        internal AppendStreamHandle WithNewOffset(long newOffset)
+        internal AppendStreamHandle WithOffset(long newOffset)
             => new AppendStreamHandle(Key, newOffset);
     }
 
