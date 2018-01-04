@@ -7,13 +7,14 @@ namespace RedisAppendStreams.Test
 
     public abstract class RedisTestsBase : IClassFixture<RedisFixture>, IAsyncLifetime
     {
-        string _dockerHost, _redisUrl;
+        string _dockerHost;
         int _redisPort;
 
         RedisFixture _fx;
         ConnectionMultiplexer _multiplexer;
 
         protected IDatabase Redis { get; private set; }
+        protected AppendStreamClient Client { get; private set; }
         
         public RedisTestsBase(RedisFixture fx)
         {
@@ -27,6 +28,7 @@ namespace RedisAppendStreams.Test
         {
             _multiplexer = await ConnectionMultiplexer.ConnectAsync($"{_dockerHost}:{_redisPort}");
             Redis = _multiplexer.GetDatabase();
+            Client = new AppendStreamClient(Redis);
         }
         
         async Task IAsyncLifetime.DisposeAsync()

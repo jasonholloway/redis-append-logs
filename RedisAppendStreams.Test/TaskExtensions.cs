@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RedisAppendStreams.Test
@@ -10,5 +11,9 @@ namespace RedisAppendStreams.Test
                 if (t.Exception == null || t.Exception.InnerException is T) return;
                 else throw t.Exception;
             });
+
+        public static Task<T[]> WhenAll<T>(this IEnumerable<Task<T>> tasks)
+            => Task.WhenAll(tasks);
+
     }
 }
