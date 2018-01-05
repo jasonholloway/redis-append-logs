@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RedisAppendStreams\RedisAppendStreams.csproj" />
+    <ProjectReference Include="..\RedisAppendLogs\RedisAppendLogs.csproj" />
   </ItemGroup>
 
 </Project>

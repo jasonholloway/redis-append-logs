@@ -2,11 +2,9 @@
 using Docker.DotNet.Models;
 using RedisAppendStreams.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using LanguageExt.Core;
 
 namespace RedisAppendStreams.Test
 {
@@ -34,10 +32,10 @@ namespace RedisAppendStreams.Test
 
         readonly DockerClient _docker;
 
-        public DockerFixture(Uri dockerUri, ContainerSpec[] contSpecs)
+        public DockerFixture(Uri dockerUri, ContainerSpec[] containerSpecs)
         {
             _dockerUri = dockerUri;
-            _conts = contSpecs.Map(s => (s, (string)null)).ToArray();
+            _conts = containerSpecs.Map(s => (s, (string)null)).ToArray();
 
             _docker = new DockerClientConfiguration(_dockerUri)
                             .CreateClient();
@@ -109,11 +107,16 @@ namespace RedisAppendStreams.Test
 
 
         Task IAsyncLifetime.InitializeAsync()
-            => StartContainers().ContinueWith(_ => Task.Delay(2000)).Unwrap();
+            => StartContainers()
+                .ContinueWith(_ => AfterStart())
+                .Unwrap();
 
         Task IAsyncLifetime.DisposeAsync()
             => KillContainers();
 
+
+        protected virtual Task AfterStart() => Task.CompletedTask;
+        
 
         class DummyProgress<T> : IProgress<T>
         {
