@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RedisAppendStreams
+namespace RedisAppendLogs
 {
     public class AppendStreamClient
     {
@@ -21,7 +21,7 @@ namespace RedisAppendStreams
         }
         
 
-        public async Task<AppendResult> Append(AppendStreamHandle handle, string val)
+        public async Task<AppendLogResult> Append(AppendLogHandle handle, string val)
         {
             await _luaAppend.EnsureLoaded(_redis);
             
@@ -29,9 +29,9 @@ namespace RedisAppendStreams
                                                                 _luaAppend.LoadedLuaScript, 
                                                                 new { key = (RedisKey)handle.Key, offset = handle.Offset, val }
                                                                 );            
-            if (newOffset < 0) return new AppendResult();
+            if (newOffset < 0) return new AppendLogResult();
 
-            return new AppendResult(handle.WithOffset(newOffset));            
+            return new AppendLogResult(handle.WithOffset(newOffset));            
         }
 
 

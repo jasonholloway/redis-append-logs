@@ -1,4 +1,4 @@
-# redis-append-streams
+# redis-append-logs
 C# client and Lua script combo for storing streams in Redis with CAS
 
 
@@ -20,15 +20,9 @@ C# client will:
 - return handle to stream
 	
 TESTING:
-The Lua script will be integrated with the client - ie the client will upload the script
-
-So, we can just test the client in its target language, C#
-
-But then the tests need some control over Redis, maybe via docker
-
-So, C# tests must load dockerized Redis
+- The Lua script will be integrated with the client - ie the client will upload the script
+- So, we can just test the client in its target language, C#
+- But then the tests need some control over Redis, maybe via docker
+- So, C# tests must load dockerized Redis
 		
-	
-	
 If an LKL is wrong, then the client must re-read. In the future maybe the server can serve the extra data back, but for now...
-

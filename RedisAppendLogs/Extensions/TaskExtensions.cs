@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RedisAppendStreams
+namespace RedisAppendLogs
 {
     public static class TaskExtensions
     {

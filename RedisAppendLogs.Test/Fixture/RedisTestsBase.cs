@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace RedisAppendStreams.Test
+namespace RedisAppendLogs.Test
 {
 
     public abstract class RedisTestsBase : IClassFixture<RedisFixture>, IAsyncLifetime

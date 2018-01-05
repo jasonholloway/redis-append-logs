@@ -1,12 +1,12 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
-using RedisAppendStreams.Extensions;
+using RedisAppendLogs.Extensions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace RedisAppendStreams.Test
+namespace RedisAppendLogs.Test
 {
     public struct ContainerSpec
     {

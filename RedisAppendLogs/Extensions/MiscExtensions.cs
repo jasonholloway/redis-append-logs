@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RedisAppendStreams.Extensions
+namespace RedisAppendLogs.Extensions
 {
     public static class MiscExtensions
     {

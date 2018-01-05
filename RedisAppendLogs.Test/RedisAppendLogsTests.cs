@@ -5,11 +5,11 @@ using LanguageExt;
 using System.Linq;
 using Shouldly;
 
-namespace RedisAppendStreams.Test
+namespace RedisAppendLogs.Test
 {
-    public class RedisAppendStreamsTests : RedisTestsBase
+    public class RedisAppendLogTests : RedisTestsBase
     {
-        public RedisAppendStreamsTests(RedisFixture fx) : base(fx)
+        public RedisAppendLogTests(RedisFixture fx) : base(fx)
         {
         }
 
@@ -34,7 +34,7 @@ namespace RedisAppendStreams.Test
         [Fact]
         public async Task Client_AppendsStrings()
         {
-            var h = new AppendStreamHandle("blah");
+            var h = new AppendLogHandle("blah");
             h = await Client.Append(h, "12345").ExpectOK();
             h = await Client.Append(h, "6789").ExpectOK();
 
@@ -48,7 +48,7 @@ namespace RedisAppendStreams.Test
         {
             await Redis.StringSetAsync("flap", "12345");
             
-            var h = new AppendStreamHandle("flap", 5);            
+            var h = new AppendLogHandle("flap", 5);            
             h = await Client.Append(h, "6789").ExpectOK();
 
             var val = (string)await Redis.StringGetAsync(h.Key);
@@ -59,7 +59,7 @@ namespace RedisAppendStreams.Test
         [Fact]
         public async Task Client_Appends_AndReadsStrings()
         {
-            var h = new AppendStreamHandle("oof");
+            var h = new AppendLogHandle("oof");
             h = await Client.Append(h, "12345").ExpectOK();
             h = await Client.Append(h, "6789").ExpectOK();
 
@@ -73,7 +73,7 @@ namespace RedisAppendStreams.Test
         [Fact]
         public async Task Client_FailsToAppend_WhenOffsetIsGazumped()
         {
-            var h1 = new AppendStreamHandle("squawk!");
+            var h1 = new AppendLogHandle("squawk!");
 
             var result1 = await Client.Append(h1, "12345");
             result1.Success.ShouldBeTrue();
@@ -86,7 +86,7 @@ namespace RedisAppendStreams.Test
         [Fact]
         public async Task OnlyOneAppenderCanWin_GivenCompetition()
         {
-            var h = new AppendStreamHandle("piffle");
+            var h = new AppendLogHandle("piffle");
             h = await Client.Append(h, "abcdef").ExpectOK();
             
             var results = await Enumerable.Range(0, 20)

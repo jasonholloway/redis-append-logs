@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace RedisAppendStreams.Test
+namespace RedisAppendLogs.Test
 {
     public static class TestExtensions
     {
-        public static AppendStreamHandle ExpectOK(this AppendResult result)
-            => result.Success ? (AppendStreamHandle)result : throw new Exception("Append failed!");
+        public static AppendLogHandle ExpectOK(this AppendLogResult result)
+            => result.Success ? (AppendLogHandle)result : throw new Exception("Append failed!");
 
-        public static Task<AppendStreamHandle> ExpectOK(this Task<AppendResult> resultTask)
+        public static Task<AppendLogHandle> ExpectOK(this Task<AppendLogResult> resultTask)
             => resultTask.Map(r => r.ExpectOK());
     }
 
