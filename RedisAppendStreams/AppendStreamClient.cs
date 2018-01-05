@@ -23,15 +23,12 @@ namespace RedisAppendStreams
 
         public async Task<AppendResult> Append(AppendStreamHandle handle, string val)
         {
-            await EnsureLuaScriptsLoaded();
-
-            var db = _redis.GetDatabase();
-
-            var newOffset = (long)await db.ScriptEvaluateAsync(
-                                            _luaAppend.LoadedLuaScript, 
-                                            new { key = (RedisKey)handle.Key, offset = handle.Offset, val }
-                                            );
+            await _luaAppend.EnsureLoaded(_redis);
             
+            var newOffset = (long)await _redis.GetDatabase().ScriptEvaluateAsync(
+                                                                _luaAppend.LoadedLuaScript, 
+                                                                new { key = (RedisKey)handle.Key, offset = handle.Offset, val }
+                                                                );            
             if (newOffset < 0) return new AppendResult();
 
             return new AppendResult(handle.WithOffset(newOffset));            
@@ -49,26 +46,7 @@ namespace RedisAppendStreams
             end
         ");
 
-
-
-        bool _scriptsLoaded = false;
-
-        async Task EnsureLuaScriptsLoaded()
-        {
-            if (_scriptsLoaded) return;
-            
-            var servers = _redis.GetEndPoints()
-                .Select(ep => _redis.GetServer(ep));
-            
-            foreach(var server in servers) {
-                await new[] { _luaAppend }
-                    .Select(s => s.LoadTo(server))
-                    .WhenAll();                
-            }
-            
-            _scriptsLoaded = true;
-        }
-
+        
         
         class Script
         {
@@ -80,14 +58,21 @@ namespace RedisAppendStreams
             public LuaScript LuaScript { get; private set; }
             public LoadedLuaScript LoadedLuaScript { get; private set; }
 
-            public async Task LoadTo(IServer server)
+            public async Task EnsureLoaded(IConnectionMultiplexer redis)
             {
-                LoadedLuaScript = await LuaScript.LoadAsync(server, CommandFlags.HighPriority);                
+                if (LoadedLuaScript != null) return;
+
+                var servers = redis.GetEndPoints()
+                    .Select(ep => redis.GetServer(ep));
+
+                foreach (var server in servers)
+                {
+                    LoadedLuaScript = await LuaScript.LoadAsync(server, CommandFlags.HighPriority);
+                }
             }
+            
         }
 
     }
-
-
-
+    
 }
