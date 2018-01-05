@@ -42,8 +42,7 @@ namespace RedisAppendStreams.Test
             val.ShouldBe("123456789");
         }
 
-
-
+        
         [Fact]
         public async Task Client_Appends_ToExistingString()
         {
@@ -55,9 +54,7 @@ namespace RedisAppendStreams.Test
             var val = (string)await Redis.StringGetAsync(h.Key);
             val.ShouldBe("123456789");
         }
-
-
-
+        
 
         [Fact]
         public async Task Client_Appends_AndReadsStrings()

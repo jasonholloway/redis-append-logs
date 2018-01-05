@@ -14,7 +14,5 @@
         internal AppendStreamHandle WithOffset(long newOffset)
             => new AppendStreamHandle(Key, newOffset);
     }
-
-
-
+    
 }

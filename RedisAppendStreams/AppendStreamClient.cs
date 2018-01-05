@@ -45,8 +45,7 @@ namespace RedisAppendStreams
                 return -1
             end
         ");
-
-        
+                
         
         class Script
         {

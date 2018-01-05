@@ -1,4 +1,5 @@
 ﻿using StackExchange.Redis;
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -7,9 +8,7 @@ namespace RedisAppendStreams.Test
 
     public abstract class RedisTestsBase : IClassFixture<RedisFixture>, IAsyncLifetime
     {
-        string _dockerHost;
-        int _redisPort;
-
+        string _redisConfig;
         RedisFixture _fx;
         IConnectionMultiplexer _redisMultiplexer;
         
@@ -19,13 +18,12 @@ namespace RedisAppendStreams.Test
         public RedisTestsBase(RedisFixture fx)
         {
             _fx = fx;
-            _dockerHost = "localhost";
-            _redisPort = 6379;
+            _redisConfig = "127.0.0.1:16379,127.0.0.1:26379";
         }
 
         async Task IAsyncLifetime.InitializeAsync()
         {
-            _redisMultiplexer = await ConnectionMultiplexer.ConnectAsync($"{_dockerHost}:{_redisPort}");
+            _redisMultiplexer = await ConnectionMultiplexer.ConnectAsync(_redisConfig);
             Client = new AppendStreamClient(_redisMultiplexer);
             Redis = _redisMultiplexer.GetDatabase();
         }
