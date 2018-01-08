@@ -7,38 +7,43 @@ namespace RedisAppendLogs
 {
     public class AppendLogClient
     {
-        IConnectionMultiplexer _redis;
+        IConnectionMultiplexer _redisMultiplexer;
 
-        public AppendLogClient(IConnectionMultiplexer redis)
+        public AppendLogClient(IConnectionMultiplexer redisMultiplexer)
         {
-            _redis = redis;
+            _redisMultiplexer = redisMultiplexer;
         }
 
-        public async Task<AppendLogResult<string>> Read(AppendLogHandle handle)
+        
+        public async Task<AppendLogResult<string>> ReadFrom(LogRef @ref)
         {
-            var db = _redis.GetDatabase();
+            long offset = @ref.Offset.GetValueOrDefault(0);
 
-            var value = (string)await db.StringGetAsync(handle.Key);
+            var value = (string)await Redis.StringGetRangeAsync(@ref.Key, offset, -1);
 
-            return AppendLogResult.Ok(value, next: handle.WithOffset(value.Length));
+            return AppendLogResult.Ok(value, next: @ref.WithOffset(offset + value.Length));
         }
         
 
-        public async Task<AppendLogResult> Append(AppendLogHandle handle, string val)
+        public async Task<AppendLogResult> Append(LogRef @ref, string val)
         {
-            if (handle.Offset == null) throw new AppendLogException("Can't append using a handle without an offset!");
+            if (@ref.Offset == null) throw new AppendLogException("Can't append using a handle without an offset!");
             
-            await _luaAppend.EnsureLoaded(_redis);
+            await _luaAppend.EnsureLoaded(_redisMultiplexer);
             
-            var newOffset = (long)await _redis.GetDatabase().ScriptEvaluateAsync(
-                                                                _luaAppend.LoadedLuaScript, 
-                                                                new { key = (RedisKey)handle.Key, offset = handle.Offset, val }
-                                                                );
+            var newOffset = (long)await Redis.ScriptEvaluateAsync(
+                                            script: _luaAppend.LoadedLuaScript, 
+                                            parameters: new { key = (RedisKey)@ref.Key, offset = @ref.Offset, val }
+                                        );
+
             if (newOffset < 0) return AppendLogResult.Fail;
 
-            return AppendLogResult.Ok(next: handle.WithOffset(newOffset));            
+            return AppendLogResult.Ok(next: @ref.WithOffset(newOffset));            
         }
+        
 
+        IDatabase Redis => _redisMultiplexer.GetDatabase();
+        
 
         Script _luaAppend = new Script(@"
             local currLength = redis.call(""STRLEN"", @key)
