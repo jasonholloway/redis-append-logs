@@ -1,4 +1,4 @@
-# redis-append-logs
+# redis-entity-logs
 C# client and Lua script combo for storing streams in Redis with CAS
 
 
