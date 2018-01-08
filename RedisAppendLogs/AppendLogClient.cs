@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace RedisAppendLogs
 {
-    public class AppendStreamClient
+    public class AppendLogClient
     {
         IConnectionMultiplexer _redis;
 
-        public AppendStreamClient(IConnectionMultiplexer redis)
+        public AppendLogClient(IConnectionMultiplexer redis)
         {
             _redis = redis;
         }

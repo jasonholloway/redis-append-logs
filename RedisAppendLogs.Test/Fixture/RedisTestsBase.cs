@@ -13,7 +13,7 @@ namespace RedisAppendLogs.Test
         IConnectionMultiplexer _redisMultiplexer;
         
         protected IDatabase Redis { get; private set; }
-        protected AppendStreamClient Client { get; private set; }
+        protected AppendLogClient Client { get; private set; }
         
         public RedisTestsBase(RedisFixture fx)
         {
@@ -24,7 +24,7 @@ namespace RedisAppendLogs.Test
         async Task IAsyncLifetime.InitializeAsync()
         {
             _redisMultiplexer = await ConnectionMultiplexer.ConnectAsync(_redisConfig);
-            Client = new AppendStreamClient(_redisMultiplexer);
+            Client = new AppendLogClient(_redisMultiplexer);
             Redis = _redisMultiplexer.GetDatabase();
         }
         
