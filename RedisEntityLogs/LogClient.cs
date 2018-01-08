@@ -25,7 +25,7 @@ namespace RedisEntityLogs
         }
         
 
-        public async Task<AppendResult> Append(LogRef @ref, string val)
+        public async Task<AppendResult> AppendTo(LogRef @ref, string val)
         {
             if (@ref.Offset == null) throw new LogException("Can't append using a handle without an offset!");
             
