@@ -5,7 +5,13 @@ using Xunit;
 
 namespace RedisEntityLogs.Test
 {
+    [CollectionDefinition("Redis tests")]
+    public class RedisTestsCollection : ICollectionFixture<RedisFixture>
+    {
 
+    }
+
+    [Collection("Redis tests")]
     public abstract class RedisTestsBase : IClassFixture<RedisFixture>, IAsyncLifetime
     {
         string _redisConfig;
