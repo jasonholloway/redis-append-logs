@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RedisAppendLogs
+namespace RedisEntityLogs
 {
     public static class TaskExtensions
     {

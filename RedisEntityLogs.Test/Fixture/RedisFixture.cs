@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace RedisAppendLogs.Test
+namespace RedisEntityLogs.Test
 {
     public class RedisFixture : DockerFixture
     {

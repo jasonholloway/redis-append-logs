@@ -1,15 +1,14 @@
-using System;
 using System.Threading.Tasks;
 using Xunit;
 using LanguageExt;
 using System.Linq;
 using Shouldly;
 
-namespace RedisAppendLogs.Test
+namespace RedisEntityLogs.Test
 {
-    public class RedisAppendLogTests : RedisTestsBase
+    public class RedisEntityLogsTests : RedisTestsBase
     {
-        public RedisAppendLogTests(RedisFixture fx) : base(fx)
+        public RedisEntityLogsTests(RedisFixture fx) : base(fx)
         {
         }
 
@@ -126,7 +125,7 @@ namespace RedisAppendLogs.Test
         {
             var @ref = new LogRef("grargrgrgrgh");
 
-            await Should.ThrowAsync<AppendLogException>(async () => {
+            await Should.ThrowAsync<LogException>(async () => {
                 await Client.Append(@ref, "asdadadsad");
             });
         }

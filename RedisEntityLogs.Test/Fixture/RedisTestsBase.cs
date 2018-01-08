@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace RedisAppendLogs.Test
+namespace RedisEntityLogs.Test
 {
 
     public abstract class RedisTestsBase : IClassFixture<RedisFixture>, IAsyncLifetime
@@ -13,7 +13,7 @@ namespace RedisAppendLogs.Test
         IConnectionMultiplexer _redisMultiplexer;
         
         protected IDatabase Redis { get; private set; }
-        protected AppendLogClient Client { get; private set; }
+        protected LogClient Client { get; private set; }
         
         public RedisTestsBase(RedisFixture fx)
         {
@@ -24,7 +24,7 @@ namespace RedisAppendLogs.Test
         async Task IAsyncLifetime.InitializeAsync()
         {
             _redisMultiplexer = await ConnectionMultiplexer.ConnectAsync(_redisConfig);
-            Client = new AppendLogClient(_redisMultiplexer);
+            Client = new LogClient(_redisMultiplexer);
             Redis = _redisMultiplexer.GetDatabase();
         }
         

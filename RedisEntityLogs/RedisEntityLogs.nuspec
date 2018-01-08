@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>RedisEntityLogs</id>
+    <version>0.1.0</version>
+    <authors>Jason Holloway</authors>
+    <projectUrl>https://github.com/jasonholloway/redis-entity-logs</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Handy client and Lua script combo for storing per-entity logs in Redis</description>
+    <copyright>Copyright 2018</copyright>
+    <tags>redis event log append</tags>
+    <dependencies>
+      <dependency id="StackExchange.Redis" version="1.2.6" />
+    </dependencies>
+  </metadata>
+</package>

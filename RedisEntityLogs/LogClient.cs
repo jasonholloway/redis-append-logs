@@ -3,31 +3,31 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RedisAppendLogs
+namespace RedisEntityLogs
 {
-    public class AppendLogClient
+    public class LogClient
     {
         IConnectionMultiplexer _redisMultiplexer;
 
-        public AppendLogClient(IConnectionMultiplexer redisMultiplexer)
+        public LogClient(IConnectionMultiplexer redisMultiplexer)
         {
             _redisMultiplexer = redisMultiplexer;
         }
 
         
-        public async Task<AppendLogResult<string>> ReadFrom(LogRef @ref)
+        public async Task<ReadResult<string>> ReadFrom(LogRef @ref)
         {
             long offset = @ref.Offset.GetValueOrDefault(0);
 
             var value = (string)await Redis.StringGetRangeAsync(@ref.Key, offset, -1);
 
-            return AppendLogResult.Ok(value, next: @ref.WithOffset(offset + value.Length));
+            return AppendResult.Ok(value, next: @ref.WithOffset(offset + value.Length));
         }
         
 
-        public async Task<AppendLogResult> Append(LogRef @ref, string val)
+        public async Task<AppendResult> Append(LogRef @ref, string val)
         {
-            if (@ref.Offset == null) throw new AppendLogException("Can't append using a handle without an offset!");
+            if (@ref.Offset == null) throw new LogException("Can't append using a handle without an offset!");
             
             await _luaAppend.EnsureLoaded(_redisMultiplexer);
             
@@ -36,9 +36,9 @@ namespace RedisAppendLogs
                                             parameters: new { key = (RedisKey)@ref.Key, offset = @ref.Offset, val }
                                         );
 
-            if (newOffset < 0) return AppendLogResult.Fail;
+            if (newOffset < 0) return AppendResult.Fail;
 
-            return AppendLogResult.Ok(next: @ref.WithOffset(newOffset));            
+            return AppendResult.Ok(next: @ref.WithOffset(newOffset));            
         }
         
 

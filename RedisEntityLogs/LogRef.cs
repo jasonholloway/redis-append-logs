@@ -1,4 +1,4 @@
-﻿namespace RedisAppendLogs
+﻿namespace RedisEntityLogs
 {
     public struct LogRef
     {
