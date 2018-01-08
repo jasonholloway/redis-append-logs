@@ -3,9 +3,9 @@
     public struct AppendLogHandle
     {
         public readonly string Key;
-        public readonly long Offset;
+        public readonly long? Offset;
 
-        public AppendLogHandle(string key, long offset = 0)
+        public AppendLogHandle(string key, long? offset = null)
         {
             Key = key;
             Offset = offset;
@@ -13,6 +13,8 @@
 
         internal AppendLogHandle WithOffset(long newOffset)
             => new AppendLogHandle(Key, newOffset);
+        
+        internal static AppendLogHandle None = new AppendLogHandle();
     }
     
 }

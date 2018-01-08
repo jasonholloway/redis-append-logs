@@ -3,24 +3,51 @@
     public struct AppendLogResult
     {
         public readonly bool Success;
-        public readonly AppendLogHandle? Next;
-
-        public AppendLogResult(AppendLogHandle next)
+        public readonly AppendLogHandle Next;
+        
+        internal AppendLogResult(bool success, AppendLogHandle next)
         {
-            Success = true;
+            Success = success;
             Next = next;
         }
+        
+        public static implicit operator AppendLogHandle(AppendLogResult result)
+            => result.Next;
 
-        public AppendLogResult(object _ = null)
-        {
-            Success = false;
-            Next = null;
-        }
+        internal static AppendLogResult Fail = new AppendLogResult(false, AppendLogHandle.None);
 
-        public static explicit operator AppendLogHandle(AppendLogResult result)
-            => result.Next.Value;
+        internal static AppendLogResult Ok(AppendLogHandle next)
+            => new AppendLogResult(true, next);
+
+        internal static AppendLogResult<T> Ok<T>(T value, AppendLogHandle next)
+            => new AppendLogResult<T>(true, value, next);
+
     }
+    
 
+    public struct AppendLogResult<T>
+    {
+        public readonly bool Success;
+        public readonly T Value;
+        public readonly AppendLogHandle Next;
 
+        internal AppendLogResult(bool success, T value, AppendLogHandle next)
+        {
+            Success = true;
+            Value = value;
+            Next = next;
+        }
+        
 
+        public static implicit operator AppendLogResult(AppendLogResult<T> result)
+            => new AppendLogResult(result.Success, result.Next);
+        
+        public static implicit operator AppendLogHandle(AppendLogResult<T> result)
+            => result.Next;
+
+        public static implicit operator T(AppendLogResult<T> result)
+            => result.Value;
+
+    }
+        
 }

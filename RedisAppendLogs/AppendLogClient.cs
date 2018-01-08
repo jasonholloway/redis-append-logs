@@ -1,4 +1,5 @@
 ﻿using StackExchange.Redis;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,25 +14,29 @@ namespace RedisAppendLogs
             _redis = redis;
         }
 
-        public async Task<string> Read(string key)
+        public async Task<AppendLogResult<string>> Read(AppendLogHandle handle)
         {
             var db = _redis.GetDatabase();
-            var value = await db.StringGetAsync(key);
-            return value;
+
+            var value = (string)await db.StringGetAsync(handle.Key);
+
+            return AppendLogResult.Ok(value, next: handle.WithOffset(value.Length));
         }
         
 
         public async Task<AppendLogResult> Append(AppendLogHandle handle, string val)
         {
+            if (handle.Offset == null) throw new AppendLogException("Can't append using a handle without an offset!");
+            
             await _luaAppend.EnsureLoaded(_redis);
             
             var newOffset = (long)await _redis.GetDatabase().ScriptEvaluateAsync(
                                                                 _luaAppend.LoadedLuaScript, 
                                                                 new { key = (RedisKey)handle.Key, offset = handle.Offset, val }
-                                                                );            
-            if (newOffset < 0) return new AppendLogResult();
+                                                                );
+            if (newOffset < 0) return AppendLogResult.Fail;
 
-            return new AppendLogResult(handle.WithOffset(newOffset));            
+            return AppendLogResult.Ok(next: handle.WithOffset(newOffset));            
         }
 
 

@@ -25,16 +25,17 @@ namespace RedisAppendLogs.Test
         {
             await Redis.StringSetAsync("hello", "123456");
             
-            var val = await Client.Read("hello");
+            var result = await Client.Read(new AppendLogHandle("hello"));
 
-            val.ShouldBe("123456");
+            result.Success.ShouldBeTrue();
+            result.Value.ShouldBe("123456");
         }
 
 
         [Fact]
         public async Task Client_AppendsStrings()
         {
-            var h = new AppendLogHandle("blah");
+            var h = new AppendLogHandle("blah", 0);
             h = await Client.Append(h, "12345").ExpectOK();
             h = await Client.Append(h, "6789").ExpectOK();
 
@@ -59,21 +60,21 @@ namespace RedisAppendLogs.Test
         [Fact]
         public async Task Client_Appends_AndReadsStrings()
         {
-            var h = new AppendLogHandle("oof");
+            var h = new AppendLogHandle("oof", 0);
             h = await Client.Append(h, "12345").ExpectOK();
             h = await Client.Append(h, "6789").ExpectOK();
 
-            var result = await Client.Read(h.Key);
-            result.ShouldBe("123456789");
-        }
+            var result = await Client.Read(h);
 
-        //handle without offset can read
-        //but cant write
+            result.Success.ShouldBeTrue();
+            result.Value.ShouldBe("123456789");
+        }
+        
 
         [Fact]
         public async Task Client_FailsToAppend_WhenOffsetIsGazumped()
         {
-            var h1 = new AppendLogHandle("squawk!");
+            var h1 = new AppendLogHandle("squawk!", 0);
 
             var result1 = await Client.Append(h1, "12345");
             result1.Success.ShouldBeTrue();
@@ -86,7 +87,7 @@ namespace RedisAppendLogs.Test
         [Fact]
         public async Task OnlyOneAppenderCanWin_GivenCompetition()
         {
-            var h = new AppendLogHandle("piffle");
+            var h = new AppendLogHandle("piffle", 0);
             h = await Client.Append(h, "abcdef").ExpectOK();
             
             var results = await Enumerable.Range(0, 20)
@@ -99,6 +100,34 @@ namespace RedisAppendLogs.Test
             results.Count(r => r.Success).ShouldBe(1);
         }
         
+
+
+        [Fact]
+        public async Task HandleWithoutOffset_ReadsAll_AndGainsOffset()
+        {
+            var h = new AppendLogHandle("schnooo");
+
+            await Redis.StringSetAsync(h.Key, "123456789");
+
+            h = await Client.Read(h);
+
+            h.Offset.ShouldBe(9);
+        }
+
+        
+
+        [Fact]
+        public async Task HandleWithoutOffset_CantWrite_ThrowsInstead()
+        {
+            var h = new AppendLogHandle("grargrgrgrgh");
+
+            await Should.ThrowAsync<AppendLogException>(async () => {
+                await Client.Append(h, "asdadadsad");
+            });
+        }
+
+
+
     }
         
 }
