@@ -2,6 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
+    <PackageId>RedisEntityLogs</PackageId>
+    <Description>Handy client and Lua script combo for storing per-entity logs in Redis</Description>
+    <PackageTags>redis;event;events;log;append;entity</PackageTags>
+    <PackageProjectUrl>https://github.com/jasonholloway/redis-entity-logs</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jasonholloway/redis-entity-logs</RepositoryUrl>
+    <RootNamespace>RedisEntityLogs</RootNamespace>
+    <IncludeSource>False</IncludeSource>
+    <IncludeSymbols>True</IncludeSymbols>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
