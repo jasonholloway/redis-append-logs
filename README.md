@@ -1,5 +1,5 @@
 # redis-entity-logs
-C# client and Lua script combo for storing streams in Redis with CAS
+C# client and Lua script combo for storing per-entity logs in Redis 
 
 
 REDIS DESIGN
